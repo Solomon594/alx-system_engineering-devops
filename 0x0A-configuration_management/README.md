@@ -1,0 +1,1 @@
+readme  for config mngmnt
