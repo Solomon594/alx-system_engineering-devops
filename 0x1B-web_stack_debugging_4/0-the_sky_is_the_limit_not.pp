@@ -3,7 +3,7 @@ $web_server_url = 'http://localhost/'
 
 # Run ApacheBench with 2000 requests and 100 requests at a time
 exec { 'run_apachebench':
-  command     => "/usr/sbin/ab -n 2000 -c 100 $web_server_url > /path/to/benchmark.log",
+  command     => "/usr/sbin/ab -n 2000 -c 100 ${web_server_url} > /path/to/benchmark.log",
   path        => '/usr/bin:/usr/sbin:/bin:/sbin',
   refreshonly => true,
 }
@@ -12,12 +12,12 @@ exec { 'run_apachebench':
 $failed_requests = inline_template("<%= File.read('/path/to/benchmark.log').scan(/^Failed requests:\\s+(\\d+)/).flatten.first.to_i %>")
 
 notify { 'failed_requests':
-  message => "Number of failed requests: $failed_requests",
+  message => "Number of failed requests: ${failed_requests}",
   require => Exec['run_apachebench'],
 }
 
 # If there are failed requests, analyze the logs and fix the issues
-if $failed_requests > 0 {
+if ${failed_requests} > 0 {
   notify { 'analyze_logs':
     message => 'Analyzing logs for errors...',
     require => Exec['run_apachebench'],
@@ -27,11 +27,11 @@ if $failed_requests > 0 {
   $logs_directory = '/path/to/logs'
 
   # Check the logs for errors
-  $error_logs = inline_template("<%= File.readlines('$logs_directory/error.log').grep(/ERROR/) %>")
+  $error_logs = inline_template("<%= File.readlines('${logs_directory}/error.log').grep(/ERROR/) %>")
 
-  if $error_logs {
+  if ${error_logs} {
     notify { 'found_errors':
-      message => "Found errors in the logs:\n$error_logs",
+      message => "Found errors in the logs:\n${error_logs}",
       require => Notify['analyze_logs'],
     }
 
@@ -49,7 +49,7 @@ if $failed_requests > 0 {
 
     # Rerun the benchmark after the fixes
     exec { 'run_apachebench_fixed':
-      command     => "/usr/sbin/ab -n 2000 -c 100 $web_server_url > /path/to/benchmark_fixed.log",
+      command     => "/usr/sbin/ab -n 2000 -c 100 ${web_server_url} > /path/to/benchmark_fixed.log",
       path        => '/usr/bin:/usr/sbin:/bin:/sbin',
       refreshonly => true,
       require     => Service['nginx'],
@@ -59,7 +59,7 @@ if $failed_requests > 0 {
     $fixed_failed_requests = inline_template("<%= File.read('/path/to/benchmark_fixed.log').scan(/^Failed requests:\\s+(\\d+)/).flatten.first.to_i %>")
 
     notify { 'fixed_failed_requests':
-      message => "Number of failed requests after fixes: $fixed_failed_requests",
+      message => "Number of failed requests after fixes: ${fixed_failed_requests}",
       require => Exec['run_apachebench_fixed'],
     }
   } else {
@@ -74,3 +74,4 @@ if $failed_requests > 0 {
     require => Exec['run_apachebench'],
   }
 }
+
