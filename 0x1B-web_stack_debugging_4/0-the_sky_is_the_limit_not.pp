@@ -2,7 +2,8 @@
 $web_server_url = 'http://localhost/'
 
 # Run ApacheBench with 2000 requests and 100 requests at a time
-exec { 'run_apachebench':
+exec 
+{ 'run_apachebench':
   command     => "/usr/sbin/ab -n 2000 -c 100 ${web_server_url} > /path/to/benchmark.log",
   path        => '/usr/bin:/usr/sbin:/bin:/sbin',
   refreshonly => true,
