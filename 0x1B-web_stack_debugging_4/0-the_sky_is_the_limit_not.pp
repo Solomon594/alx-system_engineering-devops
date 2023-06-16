@@ -1,9 +1,9 @@
 # Define the URL of your web server
-$web_server_url = "http://localhost/"
+$web_server_url = 'http://localhost/'
 
 # Run ApacheBench with 2000 requests and 100 requests at a time
 exec { 'run_apachebench':
-  command     => "ab -n 2000 -c 100 $web_server_url > /path/to/benchmark.log",
+  command     => "/usr/sbin/ab -n 2000 -c 100 $web_server_url > /path/to/benchmark.log",
   path        => '/usr/bin:/usr/sbin:/bin:/sbin',
   refreshonly => true,
 }
@@ -40,8 +40,8 @@ if $failed_requests > 0 {
 
     # Example fix: Restart Nginx
     service { 'nginx':
-      ensure => 'running',
-      enable => true,
+      ensure  => 'running',
+      enable  => true,
       require => Notify['found_errors'],
     }
 
@@ -49,7 +49,7 @@ if $failed_requests > 0 {
 
     # Rerun the benchmark after the fixes
     exec { 'run_apachebench_fixed':
-      command     => "ab -n 2000 -c 100 $web_server_url > /path/to/benchmark_fixed.log",
+      command     => "/usr/sbin/ab -n 2000 -c 100 $web_server_url > /path/to/benchmark_fixed.log",
       path        => '/usr/bin:/usr/sbin:/bin:/sbin',
       refreshonly => true,
       require     => Service['nginx'],
